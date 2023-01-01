@@ -1,24 +1,41 @@
+"""
+This module represents the connection to the camera
+"""
+
 import csv
 import ftplib
 import logging
 import pathlib
-import time
 
-from VaquitaDownloader import CameraInstance
-from VaquitaDownloader.DirectoryListing import DirectoryListing
+import camera_instance
+
+from vaquita_downloader.directory_listing import DirectoryListing
 
 CAMERA_LOG_DIR = '/var/www/DCIM/LOGS'
 
 
 class Buffer:
+    """
+    This class allows the addition of in-memory data without modifying the reference
+    """
     def __init__(self):
         self.buffer = b''
 
-    def add_chunk(self, chunk):
+    def add_chunk(self, chunk: bytes):
+        """
+        Appends to instance buffer
+        :param chunk: the bytes to be added to buffer
+        :return: None
+        """
         self.buffer += chunk
 
 
 class CameraSession:
+    """
+    A camera session is basically an FTP session to the device.
+    This holds the state of the FTP session plus some static variables.
+    As well as wrapping up some functionality that is maybe multiple steps.
+    """
     host = '192.168.42.1'
     username = 'vaquita'
     password = 'vaquita'
@@ -55,10 +72,6 @@ class CameraSession:
                     #   6. Maybe import into subsurface
                     #   7. Maybe add feature to subsurface to link media files in connected or disconnected state
                     time = line['Time']
-
-
-
-
     def download_new_logs(self):
         if not self.is_connected():
             self.initiate_session()
@@ -92,9 +105,9 @@ class CameraSession:
         def retr_callback(block, buffer=buffer):
             buffer.add_chunk(block)
 
-        server.retrbinary(f'RETR {CameraInstance.INFO_FILE_NAME}', retr_callback)
-        camera = CameraInstance.Camera(buffer.buffer)
-        response = server.sendcmd(f'MDTM {CameraInstance.INFO_FILE_NAME}')
+        server.retrbinary(f'RETR {camera_instance.INFO_FILE_NAME}', retr_callback)
+        camera = camera_instance.Camera(buffer.buffer)
+        response = server.sendcmd(f'MDTM {camera_instance.INFO_FILE_NAME}')
         camera.set_modified(response)
         return camera
 

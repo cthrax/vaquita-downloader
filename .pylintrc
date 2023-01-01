@@ -1,0 +1,4 @@
+[MESSAGES CONTROL]
+  disable=
+    too-few-public-methods,
+    missing-function-or-method-docstring

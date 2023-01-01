@@ -1,4 +1,4 @@
-from VaquitaDownloader.CameraSession import CameraSession
+from vaquita_downloader.camera_session import CameraSession
 
 
 def main():
