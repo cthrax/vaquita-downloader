@@ -7,8 +7,7 @@ import ftplib
 import logging
 import pathlib
 
-import camera_instance
-
+from vaquita_downloader import camera_instance, utils
 from vaquita_downloader.directory_listing import DirectoryListing
 
 CAMERA_LOG_DIR = '/var/www/DCIM/LOGS'
@@ -43,6 +42,8 @@ class CameraSession:
     def __init__(self, cache_dir=None, verbosity=logging.INFO):
         if cache_dir is None:
             self.cache_dir = './logs'
+        else:
+            self.cache_dir = cache_dir
         self.verbosity = verbosity
 
         self.cache_dir_path = pathlib.Path(self.cache_dir)
@@ -56,7 +57,9 @@ class CameraSession:
         self.camera = self.retr_camera_info(self.server)
 
     def import_new_media(self):
-        for path in self.cache_dir_path.glob("*.csv"):
+        paths = utils.sort_numeric_strings(self.cache_dir_path.glob("*.csv"), 'LOG', '.csv', key=lambda k: k.name)
+
+        for path in paths:
             with open(path.absolute(), 'r') as f:
                 csv_reader = csv.DictReader(f)
                 for line in csv_reader:
@@ -91,7 +94,8 @@ class CameraSession:
                 with open(path.absolute(), 'wb') as f:
                     server.retrbinary(f'RETR {filename}', f.write)
 
-    def get_log_listing(self, server: ftplib.FTP):
+    @staticmethod
+    def get_log_listing(server: ftplib.FTP):
         server.cwd(f'{CAMERA_LOG_DIR}')
 
         dir_listing = DirectoryListing()

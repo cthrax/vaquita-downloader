@@ -1,9 +1,8 @@
 import datetime
 import json
 
-from vaquita_downloader.utils import UTC
-
 INFO_FILE_NAME = '.camera.json'
+
 
 class Camera:
 
@@ -66,8 +65,3 @@ class Camera:
         modified_time = server_response.split(' ')[1]
         parsed_time = datetime.datetime.strptime(modified_time + "+0000", "%Y%m%d%H%M%S%z")
         self.parsed_time = parsed_time
-
-
-if __name__ == "__main__":
-    camera = Camera()
-    camera.set_modified('213 20221230061203')
